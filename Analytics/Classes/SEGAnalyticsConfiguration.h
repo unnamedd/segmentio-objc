@@ -7,8 +7,18 @@
 //
 
 #import <Foundation/Foundation.h>
+
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 
+#elif TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
+
+#elif TARGET_OS_OSX
+#import <Cocoa/Cocoa.h>
+#endif
+
+#if TARGET_OS_IOS
 @protocol SEGApplicationProtocol <NSObject>
 @property (nullable, nonatomic, assign) id<UIApplicationDelegate> delegate;
 - (UIBackgroundTaskIdentifier)seg_beginBackgroundTaskWithName:(nullable NSString *)taskName expirationHandler:(void (^__nullable)(void))handler;
@@ -18,7 +28,7 @@
 
 @interface UIApplication (SEGApplicationProtocol) <SEGApplicationProtocol>
 @end
-
+#endif
 typedef NSMutableURLRequest *_Nonnull (^SEGRequestFactory)(NSURL *_Nonnull);
 
 @protocol SEGIntegrationFactory;
@@ -135,10 +145,12 @@ typedef NSMutableURLRequest *_Nonnull (^SEGRequestFactory)(NSURL *_Nonnull);
  */
 - (void)use:(id<SEGIntegrationFactory> _Nonnull)factory;
 
+#if TARGET_OS_IOS
 /**
  * Leave this nil for iOS extensions, otherwise set to UIApplication.sharedApplication.
  */
 @property (nonatomic, strong, nullable) id<SEGApplicationProtocol> application;
+#endif
 
 /**
  * A dictionary of filters to redact payloads before they are sent.

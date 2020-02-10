@@ -22,7 +22,10 @@
  */
 
 #import <Foundation/Foundation.h>
+
+#if !TARGET_OS_WATCH
 #import <SystemConfiguration/SystemConfiguration.h>
+#endif
 
 /**
  * Does ARC support GCD objects?
@@ -47,6 +50,7 @@
     enum _name : _type
 #endif
 
+#if TARGET_OS_IPHONE
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString *const kSEGReachabilityChangedNotification;
@@ -102,3 +106,4 @@ typedef void (^SEGNetworkUnreachable)(SEGReachability *reachability);
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

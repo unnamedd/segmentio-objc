@@ -9,7 +9,7 @@
 #import "SEGAnalyticsConfiguration.h"
 #import "SEGCrypto.h"
 
-
+#if TARGET_OS_IOS
 @implementation UIApplication (SEGApplicationProtocol)
 
 - (UIBackgroundTaskIdentifier)seg_beginBackgroundTaskWithName:(nullable NSString *)taskName expirationHandler:(void (^__nullable)(void))handler
@@ -23,7 +23,7 @@
 }
 
 @end
-
+#endif
 
 @interface SEGAnalyticsConfiguration ()
 
@@ -61,6 +61,8 @@
             @"(fb\\d+://authorize#access_token=)([^ ]+)": @"$1((redacted/fb-auth-token))"
         };
         _factories = [NSMutableArray array];
+        
+#if TARGET_OS_IOS
         Class applicationClass = NSClassFromString(@"UIApplication");
         if (applicationClass) {
 #pragma clang diagnostic push
@@ -68,6 +70,7 @@
             _application = [applicationClass performSelector:NSSelectorFromString(@"sharedApplication")];
 #pragma clang diagnostic pop
         }
+#endif
     }
     return self;
 }

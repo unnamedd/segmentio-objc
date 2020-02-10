@@ -1,11 +1,9 @@
 #import <objc/runtime.h>
-#import <UIKit/UIKit.h>
 #import "SEGAnalyticsUtils.h"
 #import "SEGAnalytics.h"
 #import "SEGIntegrationFactory.h"
 #import "SEGIntegration.h"
 #import "SEGSegmentIntegrationFactory.h"
-#import "UIViewController+SEGScreen.h"
 #import "SEGStoreKitTracker.h"
 #import "SEGHTTPClient.h"
 #import "SEGStorage.h"
@@ -16,6 +14,11 @@
 #import "SEGIntegrationsManager.h"
 #import "Internal/SEGUtils.h"
 
+#if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#import "UIViewController+SEGScreen.h"
+#endif
+
 static SEGAnalytics *__sharedInstance = nil;
 
 
@@ -23,9 +26,11 @@ static SEGAnalytics *__sharedInstance = nil;
 
 @property (nonatomic, assign) BOOL enabled;
 @property (nonatomic, strong) SEGAnalyticsConfiguration *configuration;
-@property (nonatomic, strong) SEGStoreKitTracker *storeKitTracker;
 @property (nonatomic, strong) SEGIntegrationsManager *integrationsManager;
 @property (nonatomic, strong) SEGMiddlewareRunner *runner;
+#if TARGET_OS_IOS
+@property (nonatomic, strong) SEGStoreKitTracker *storeKitTracker;
+#endif
 
 @end
 
@@ -55,6 +60,8 @@ static SEGAnalytics *__sharedInstance = nil;
         self.runner = [[SEGMiddlewareRunner alloc] initWithMiddlewares:
                                                        [configuration.middlewares ?: @[] arrayByAddingObject:self.integrationsManager]];
 
+        
+#if TARGET_OS_IOS
         // Attach to application state change hooks
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
@@ -77,8 +84,9 @@ static SEGAnalytics *__sharedInstance = nil;
         if (configuration.trackInAppPurchases) {
             _storeKitTracker = [SEGStoreKitTracker trackTransactionsForAnalytics:self];
         }
-
-#if !TARGET_OS_TV
+#endif
+        
+#if TARGET_OS_IOS
         if (configuration.trackPushNotifications && configuration.launchOptions) {
             NSDictionary *remoteNotification = configuration.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
             if (remoteNotification) {
@@ -101,6 +109,7 @@ NSString *const SEGVersionKey = @"SEGVersionKey";
 NSString *const SEGBuildKeyV1 = @"SEGBuildKey";
 NSString *const SEGBuildKeyV2 = @"SEGBuildKeyV2";
 
+#if TARGET_OS_IOS
 - (void)handleAppStateNotification:(NSNotification *)note
 {
     SEGApplicationLifecyclePayload *payload = [[SEGApplicationLifecyclePayload alloc] init];
@@ -115,6 +124,7 @@ NSString *const SEGBuildKeyV2 = @"SEGBuildKeyV2";
       [self _applicationDidEnterBackground];
     }
 }
+#endif
 
 - (void)_applicationDidFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -153,8 +163,10 @@ NSString *const SEGBuildKeyV2 = @"SEGBuildKeyV2";
         @"from_background" : @NO,
         @"version" : currentVersion ?: @"",
         @"build" : currentBuild ?: @"",
+#if TARGET_OS_IOS
         @"referring_application" : launchOptions[UIApplicationLaunchOptionsSourceApplicationKey] ?: @"",
         @"url" : launchOptions[UIApplicationLaunchOptionsURLKey] ?: @"",
+#endif
     }];
 
 

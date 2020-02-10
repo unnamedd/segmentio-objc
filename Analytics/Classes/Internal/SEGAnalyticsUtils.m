@@ -1,5 +1,5 @@
 #import "SEGAnalyticsUtils.h"
-#import <AdSupport/ASIdentifierManager.h>
+//#import <AdSupport/ASIdentifierManager.h>
 
 static BOOL kAnalyticsLoggerShowLogs = NO;
 

@@ -86,6 +86,7 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
         // Update settings on each integration immediately
         [self refreshSettings];
 
+#if TARGET_OS_IOS
         // Attach to application state change hooks
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 
@@ -94,6 +95,7 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
         if (application) {
             [nc addObserver:self selector:@selector(onAppForeground:) name:UIApplicationWillEnterForegroundNotification object:application];
         }
+#endif
     }
     return self;
 }
@@ -113,6 +115,7 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
 
 - (void)handleAppStateNotification:(NSString *)notificationName
 {
+#if TARGET_OS_IOS
     SEGLog(@"Application state change notification: %@", notificationName);
     static NSDictionary *selectorMapping;
     static dispatch_once_t selectorMappingOnce;
@@ -136,6 +139,7 @@ static NSString *const kSEGAnonymousIdFilename = @"segment.anonymousId";
     if (selector) {
         [self callIntegrationsWithSelector:selector arguments:nil options:nil sync:true];
     }
+#endif
 }
 
 
